@@ -2,12 +2,26 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import { ChakraProvider } from "@chakra-ui/react";
 import reportWebVitals from './reportWebVitals';
+import { Helmet, HelmetProvider } from 'react-helmet-async'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <HelmetProvider>
+      <Helmet>
+        <title>
+            Kuronekosan Error Pages
+        </title>
+      </Helmet>
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    </HelmetProvider>
   </React.StrictMode>,
+
+
+
   document.getElementById('root')
 );
 
