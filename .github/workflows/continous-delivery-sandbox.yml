@@ -1,0 +1,43 @@
+name: Continous Delivery Sandbox
+
+on:
+  release:
+    types: [ prereleased ]
+
+jobs:
+  development:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Checkout to Action V2
+        uses: actions/checkout@v2
+      - name: Checkout Node JS
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Installing Library
+        run: yarn install --silent
+      - name: Setup ENV
+        run: "echo \"${{ secrets.SANDBOX_ENV }}\" > .env.production.local"
+      - name: Build Project
+        run: yarn build
+        env:
+          CI: false
+      - name: Removing older files
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          command: rm -rf /home/kuro/dev/CustomErrorReact/*
+          host: ${{ secrets.SANDBOX_HOST }}
+          username: ${{ secrets.SANDBOX_USERNAME }}
+          privateKey: ${{ secrets.SANDBOX_SSH_PRIVATE_KEY }}
+      - name: Copy to server
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: build
+          remote: /home/kuro/dev/CustomErrorReact
+          host: ${{ secrets.SANDBOX_HOST }}
+          username: ${{ secrets.SANDBOX_USERNAME }}
+          privateKey: ${{ secrets.SANDBOX_SSH_PRIVATE_KEY }}
+          recursive : true
